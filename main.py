@@ -63,7 +63,7 @@ async def ask_gigachat(request):
     return gigachat.invoke(request).content
 
 
-@app.get("/auth")
+@app.post("/auth")
 async def auth(username: Annotated[str, Depends(get_current_username)]):
     return {'success': True}
 
