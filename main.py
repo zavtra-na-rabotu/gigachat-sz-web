@@ -51,6 +51,11 @@ async def ask_gigachat(request):
     return gigachat.invoke(request).content
 
 
+@app.get("/auth")
+async def auth(username: Annotated[str, Depends(get_current_username)]):
+    return "OK"
+
+
 @app.post("/predict")
 async def create_item(request: Request, username: Annotated[str, Depends(get_current_username)]):
     body = await request.json()
