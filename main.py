@@ -3,7 +3,8 @@ import secrets
 from typing import Annotated
 
 import uvicorn
-from fastapi import FastAPI, Request, Depends, HTTPException, status
+from fastapi import FastAPI, Request, Depends
+from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.staticfiles import StaticFiles
 from langchain_community.chat_models import GigaChat
@@ -18,6 +19,19 @@ API_PASSWORD = os.getenv('API_PASSWORD')
 GIGACHAT_CREDENTIALS = os.getenv('GIGACHAT_CREDENTIALS')
 
 
+class AuthException(Exception):
+    def __init__(self, description: str):
+        self.name = description
+
+
+@app.exception_handler(AuthException)
+async def unicorn_exception_handler(request: Request, exc: AuthException):
+    return JSONResponse(
+        status_code=200,
+        content={'success': False}
+    )
+
+
 def get_current_username(credentials: Annotated[HTTPBasicCredentials, Depends(security)]):
     current_username_bytes = credentials.username.encode("utf8")
     correct_username_bytes = bytes(API_USER, 'utf-8')
@@ -30,10 +44,8 @@ def get_current_username(credentials: Annotated[HTTPBasicCredentials, Depends(se
         current_password_bytes, correct_password_bytes
     )
     if not (is_correct_username and is_correct_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Basic"},
+        raise AuthException(
+            description='Incorrect username or password'
         )
     return credentials.username
 
@@ -53,7 +65,7 @@ async def ask_gigachat(request):
 
 @app.get("/auth")
 async def auth(username: Annotated[str, Depends(get_current_username)]):
-    return "OK"
+    return {'success': True}
 
 
 @app.post("/predict")
