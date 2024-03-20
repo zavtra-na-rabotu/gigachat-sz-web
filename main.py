@@ -58,6 +58,7 @@ async def ask_gigachat(request):
         credentials=GIGACHAT_CREDENTIALS,
         verify_ssl_certs=False,
         profanity_check=False,
+        profanity=False
     )
 
     return gigachat.invoke(request).content
