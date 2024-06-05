@@ -3,7 +3,7 @@ import secrets
 from typing import Annotated
 
 import uvicorn
-from fastapi import FastAPI, Request, Depends
+from fastapi import FastAPI, Request, Depends, Response
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.staticfiles import StaticFiles
@@ -28,6 +28,7 @@ class AuthException(Exception):
 async def unicorn_exception_handler(request: Request, exc: AuthException):
     return JSONResponse(
         status_code=200,
+        headers={"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"},
         content={'success': False}
     )
 
@@ -65,14 +66,16 @@ async def ask_gigachat(request):
 
 
 @app.post("/auth")
-async def auth(username: Annotated[str, Depends(get_current_username)]):
+async def auth(response: Response, username: Annotated[str, Depends(get_current_username)]):
+    response.headers["Access-Control-Allow-Origin"] = "*"
     return {'success': True}
 
 
 @app.post("/predict")
-async def create_item(request: Request, username: Annotated[str, Depends(get_current_username)]):
+async def create_item(request: Request, response: Response, username: Annotated[str, Depends(get_current_username)]):
     body = await request.json()
     content = await ask_gigachat(body['messages'])
+    response.headers["Access-Control-Allow-Origin"] = "*"
     return {'role': 'assistant', 'content': content}
 
 
