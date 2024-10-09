@@ -4,6 +4,8 @@ services:
     container_name: sz_web
     environment:
       - GIGACHAT_CREDENTIALS=${GIGACHAT_CREDENTIALS}
+    env_file:
+      - .env
     ports:
       - "1234:1234"
     volumes:
