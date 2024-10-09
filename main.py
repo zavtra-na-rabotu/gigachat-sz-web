@@ -53,10 +53,6 @@ async def ask_gigachat(request):
 
 @app.post("/predict")
 async def create_item(request: Request, response: Response):
-    print("====================")
-    print(GIGACHAT_CREDENTIALS)
-    print("====================")
-
     body = await request.json()
     content = await ask_gigachat(body['messages'])
     response.headers["Access-Control-Allow-Origin"] = "*"
