@@ -41,7 +41,6 @@ async def unicorn_exception_handler(request: Request, exc: AuthException):
 async def ask_gigachat(request):
     gigachat = GigaChat(
         model='GigaChat-Pro',
-        base_url='https://gigachat.devices.sberbank.ru/api/v1',
         scope='GIGACHAT_API_CORP',
         credentials=GIGACHAT_CREDENTIALS,
         verify_ssl_certs=False,
@@ -54,6 +53,10 @@ async def ask_gigachat(request):
 
 @app.post("/predict")
 async def create_item(request: Request, response: Response):
+    print("====================")
+    print(GIGACHAT_CREDENTIALS)
+    print("====================")
+
     body = await request.json()
     content = await ask_gigachat(body['messages'])
     response.headers["Access-Control-Allow-Origin"] = "*"
